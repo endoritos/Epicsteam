@@ -14,7 +14,6 @@ class ActorFixtures extends Fixture
        $actor->setName('Chrisbrown Bale');
         $manager->persist($actor);
 
-
         $actor2 = new Actor();
        $actor2->setName('tiller ');
         $manager->persist($actor2);
