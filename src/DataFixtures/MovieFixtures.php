@@ -16,6 +16,10 @@ class MovieFixtures extends Fixture
         $movie->setDescription('Resuguwed this girl at a bouth part met for dinks and fell with here story got marryed had kids happy everyafter');
         $movie->setImagePath('https://lillyathomeblog.files.wordpress.com/2020/11/2020-11-2220_56_27.574-0500.jpg?w=1024');
 
+        // Add data to Pivot Table 
+        $movie->addActor($this->getReference('actor_1'));
+        $movie->addActor($this->getReference('actor_2'));
+
         $manager->persist($movie);
 
         $movie2 = new Movie();
@@ -24,6 +28,9 @@ class MovieFixtures extends Fixture
         $movie2->setDescription('after good years in marrige is time to get a porche gtr');
         $movie2->setImagePath('https://lillyathomeblog.files.wordpress.com/2020/11/2020-11-2220_56_27.574-0500.jpg?w=1024');
         $manager->persist($movie2);
+
+        $movie2->addActor($this->getReference('actor_3'));
+        $movie2->addActor($this->getReference('actor_4'));
 
         $manager->flush();
 
