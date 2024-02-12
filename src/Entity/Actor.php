@@ -6,6 +6,7 @@ use App\Repository\ActorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use symfony\Componets\Validator\Constraint as Assert;
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 class Actor
