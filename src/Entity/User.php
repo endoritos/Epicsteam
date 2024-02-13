@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
     #[ORM\Column]
     private ?int $id = null;
 
@@ -35,11 +35,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $profilePictures = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $Gender = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $Createdate = null;
+    #[ORM\Column(type: "datetime_immutable",nullable: true)]
+    private ?\DateTimeImmutable $createdDate = null;
 
     public function getId(): ?int
     {
@@ -147,15 +147,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedate(): ?\DateTimeImmutable
+    public function getCreatedDate(): ?\DateTimeImmutable
     {
-        return $this->Createdate;
+        return $this->createdDate;
     }
 
-    public function setCreatedate(\DateTimeImmutable $Createdate): static
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedDateValue(): void
     {
-        $this->Createdate = $Createdate;
-
-        return $this;
+        $this->createdDate = new \DateTimeImmutable();
     }
 }
+

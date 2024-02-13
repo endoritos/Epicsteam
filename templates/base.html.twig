@@ -80,9 +80,9 @@
                                 <li class="mr-3">
                                     <a
                                             class="inline-block text-gray-300 no-underline hover:text-gray-200 hover:text-underline py-2 px-4"
-                                            href="/contact"
+                                            href="/{{app.user ? 'Profile' : 'register'}}"
                                             @click="isOpen = false">
-                                        Contact
+                                        Register
                                     </a>
                                 </li>
 
