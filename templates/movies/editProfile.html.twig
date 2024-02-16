@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Edit Profile</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.username) }}
+        {{ form_row(form.Gender) }}
+        {{ form_row(form.password, {'attr': {'placeholder': 'Leave blank to keep current password'}}) }}
+        {{ form_row(form.profilePictures) }}
+
+        <button 
+        class="uppercase mt-15 bg-blue-500 text-gray-100 text-lg font-extrabold py-4 px-8 rounded-3xl">
+        Update Profile
+        </button>
+    {{ form_end(form) }}
+{% endblock %}

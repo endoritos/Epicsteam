@@ -42,7 +42,6 @@ class RegistrationFormType extends AbstractType
                 'choices' => [
                     'Male' => true,
                     'Female' => false,
-                    'Other' => null,
                 ],
                 'placeholder' => 'Choose gender', 
                 'attr' => [

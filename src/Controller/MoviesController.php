@@ -12,7 +12,9 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
  // findAll() - select all * FORM movies;
         // find() - Select * FORM movies WHERE id= 5
@@ -28,9 +30,12 @@ class MoviesController extends AbstractController
     private $em;
 
     private $gameRepository;
+
     private $security;
 
-    public function __construct(EntityManagerInterface $em, GameRepository $movieRepository ,Security $security) 
+
+
+    public function __construct(EntityManagerInterface $em, GameRepository $movieRepository ,Security $security, )  
     {
         $this->em = $em;
         $this->gameRepository = $movieRepository;
@@ -83,7 +88,7 @@ class MoviesController extends AbstractController
             $em->persist($game);
             $em->flush();
 
-            // Redirect to a route that makes sense after creating a game, adjust as necessary
+            // Redirect to a route that makes sense after creating a game
             return $this->redirectToRoute('app_movies'); // Ensure this route exists in your routing configuration
         }
 

@@ -1,0 +1,45 @@
+{% extends "./base.html.twig" %}
+
+{% block body %}
+
+{% if app.user %}
+
+    <div> 
+        <h2 class="text-gray-700 font-bold text-3xl py-2 mt-7">
+            Username: {{ app.user.username }}
+        </h2>
+    {% set profilePicture = app.user.profilePictures ? app.user.profilePictures : 'C:\xampp\Update\htdocs\EpicSite\public\uploads\65cf689f32bc5.gif' %}
+    <img class="w-80 h-80 rounded-full mt-30" src="{{ profilePicture }}" alt="User avatar">
+
+    <h2 class="text-gray-700 font-bold text-3xl py-2 mt-7">
+        Username: {{ app.user.username }}
+    </h2>
+
+    <h2 class="text-gray-700 font-bold text-3xl py-2">
+        Email: {{ app.user.email }}
+    </h2>
+
+    {% if app.user.gender %}
+    <h2 class="text-gray-700 font-bold text-3xl py-2">
+        {% if app.user.gender == 0 %}
+        Gender: girl
+    {% elseif app.user.gender == 1 %}
+        Gender: Male
+    {% else %}
+        Gender: Not specified
+    {% endif %}
+    </h2>
+    {% endif %}
+
+    <div class="mx-auto w-4/5 my-8">
+        <a 
+            href="/edit-profile" 
+            class="uppercase border border-gray-500 text-lg py-4 px-6 rounded transition transition-all bg-gray-800 text-white hover:bg-white hover:text-gray-800">
+            edit information
+        </a>
+    </div>
+{% else %}
+    <p>You are not logged in.</p></div>
+{% endif %}
+
+{% endblock %}
