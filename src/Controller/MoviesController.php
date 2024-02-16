@@ -3,16 +3,16 @@
 namespace App\Controller;
 
 
-use App\Entity\Movie;
+use App\Entity\Game;
 use App\Form\MovieFormType;
-use App\Repository\MovieRepository;
+use App\Repository\GameRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Core\Security;
 
  // findAll() - select all * FORM movies;
         // find() - Select * FORM movies WHERE id= 5
@@ -27,35 +27,35 @@ class MoviesController extends AbstractController
 {
     private $em;
 
-    private $movieRepository;
+    private $gameRepository;
+    private $security;
 
-    public function __construct(EntityManagerInterface $em, MovieRepository $movieRepository) 
+    public function __construct(EntityManagerInterface $em, GameRepository $movieRepository ,Security $security) 
     {
         $this->em = $em;
-        $this->movieRepository = $movieRepository;
+        $this->gameRepository = $movieRepository;
+        $this->security = $security;
     }
 
-    #[Route('/movies', methods:['GET'] , name: 'app_movies')]
+    #[Route('/games', methods:['GET'] , name: 'app_movies')]
     public function index(): Response
     {
-        $movies = $this->movieRepository->findAll();
-        
+        $games = $this->gameRepository->findAll();
 
         return $this->render('movies/index.html.twig', [
-            'movies' => $movies
+            'games' => $games
         ]);
     }
 
-    #[Route('/movies/create', name: 'create_movie')]
-    public function create(Request $request): Response
+    #[Route('/games/create', name: 'create_game')] // Corrected the route name
+    public function create(Request $request, EntityManagerInterface $em): Response
     {
-        $movie = new Movie();
-        $form = $this->createForm(MovieFormType::class, $movie);
+        $game = new Game();
+        $form = $this->createForm(MovieFormType::class, $game); // Use the correct form class
         
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newMovie = $form->getData();
             $imagePath = $form->get('imagePath')->getData();
             
             if ($imagePath) {
@@ -67,28 +67,38 @@ class MoviesController extends AbstractController
                         $newFileName
                     );
                 } catch (FileException $e) {
+                    // Consider logging this error instead of returning a response with the error message
                     return new Response($e->getMessage());
                 }
-                // $newMovie->setUserId($this->getUser()->getId());
-                $newMovie->setImagePath('/uploads/' . $newFileName);
+
+                $game->setImagePath('/uploads/' . $newFileName);
             }
 
-            $this->em->persist($newMovie);
-            $this->em->flush();
+            // Set the current user as the creator of the game
+            $user = $this->security->getUser();
+            if ($user) {
+                $game->setUser($user);
+            }
 
-            return $this->redirectToRoute('app_movies');
+            $em->persist($game);
+            $em->flush();
+
+            // Redirect to a route that makes sense after creating a game, adjust as necessary
+            return $this->redirectToRoute('app_movies'); // Ensure this route exists in your routing configuration
         }
 
+        // Adjust the template path to reflect game creation context
         return $this->render('movies/create.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/movies/edit/{id}', name: 'edit_movie')]
+
+    #[Route('/games/edit/{id}', name: 'edit_movie')]
     public function edit($id, Request $request): Response 
     {
         // $this->checkLoggedInUser($id);
-        $movie = $this->movieRepository->find($id);
+        $movie = $this->gameRepository->find($id);
 
         $form = $this->createForm(MovieFormType::class, $movie);
 
@@ -120,9 +130,8 @@ class MoviesController extends AbstractController
                     return $this->redirectToRoute('app_movies');
                 }
             } else {
-                $movie->setTitle($form->get('title')->getData());
-                $movie->setReleaseYear($form->get('releaseYear')->getData());
-                $movie->setDescription($form->get('description')->getData());
+                $movie->setGameName($form->get('gameName')->getData());
+                $movie->setLink($form->get('link')->getData());
 
                 $this->em->flush();
                 return $this->redirectToRoute('app_movies');
@@ -135,11 +144,11 @@ class MoviesController extends AbstractController
         ]);
     }
 
-    #[Route('/movies/delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_movie')]
+    #[Route('/games/delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_movie')]
     public function delete($id): Response
     {
         // $this->checkLoggedInUser($id);
-        $movie = $this->movieRepository->find($id);
+        $movie = $this->gameRepository->find($id);
         $this->em->remove($movie);
         $this->em->flush();
 
@@ -147,13 +156,13 @@ class MoviesController extends AbstractController
     }
 
 
-    #[Route('/movies/{id}', methods:['GET'], name: 'movies_show')]
+    #[Route('/games/{id}', methods:['GET'], name: 'movies_show')]
     public function show($id): Response
     {
-        $movie = $this->movieRepository->find($id);
+        $game = $this->gameRepository->find($id);
         
         return $this->render('movies/show.html.twig', [
-            'movie' => $movie
+            'game' => $game
         ]);
     }
 }

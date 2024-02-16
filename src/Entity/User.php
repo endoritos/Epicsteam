@@ -7,6 +7,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
@@ -40,6 +43,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: "datetime_immutable",nullable: true)]
     private ?\DateTimeImmutable $createdDate = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Game::class, mappedBy="user")
+     */
+    private Collection $games;
+
+    public function __construct()
+    {
+        $this->games = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -158,6 +171,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedDateValue(): void
     {
         $this->createdDate = new \DateTimeImmutable();
+    }
+
+   /**
+     * @return Collection<int, Game>
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
+    }
+    public function addGame(Game $game): self
+    {
+        if (!$this->games->contains($game)) {
+            $this->games[] = $game;
+            $game->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGame(Game $game): self
+    {
+        if ($this->games->removeElement($game)) {
+            // set the owning side to null (unless already changed)
+            if ($game->getUser() === $this) {
+                $game->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
 

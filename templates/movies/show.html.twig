@@ -1,9 +1,10 @@
 {% extends "./base.html.twig" %}
-
 {% block body %}
+
+    
     <div class="sm:w-3/5 w-4/5 mx-auto">
         <h1 class="pt-20 sm:text-5xl md:text-7xl text-4xl font-bold text-center">
-            {{ movie.title }}
+            {{ game.gameName }}
         </h1>
 
         <div class="py-10 text-center">
@@ -13,30 +14,32 @@
                 </h2>
 
                 <p class="text-sm text-gray-600">
-                    timecreated
+                    timecreated: {{game.id}}
                 </p>
             </div>
         </div>
 
-        <img
-            src="{{ movie.imagePath }}"
-            class="rounded-xl w-full shadow-xl"
-            alt="Endy says wait"
-        />
+        <a href="{{ game.link }}" target="_blank">
+            <img
+                src="{{ game.imagePath }}"
+                class="rounded-xl w-full shadow-xl"
+                alt="Endy says wait"
+            />
+        </a>        
 
+        {% if app.user and game.id == app.user.id %}
         <p class="text-xl py-6">
-            {{ movie.description }}
+            what u here for
         </p>
 
-        {% if app.user and movie.userId == app.user.id %}
             <a 
-                href="/movies/edit/{{ movie.id }}"
+                href="/games/edit/{{ game.id }}"
                 class="bg-green-500 font-bold py-2 px-4 rounded transition-all hover:bg-green-300">
                 Edit Game 
             </a>
 
             <a 
-                href="/movies/delete/{{ movie.id }}"
+                href="/games/delete/{{ game.id }}"
                 class="bg-red-500 font-bold py-2 px-4 ml-6 rounded transition-all hover:bg-red-300">
                 Delete Game
             </a> 
