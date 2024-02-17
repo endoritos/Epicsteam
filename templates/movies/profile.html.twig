@@ -19,17 +19,16 @@
         Email: {{ app.user.email }}
     </h2>
 
-    {% if app.user.gender %}
+    
     <h2 class="text-gray-700 font-bold text-3xl py-2">
         {% if app.user.gender == 0 %}
         Gender: girl
     {% elseif app.user.gender == 1 %}
         Gender: Male
     {% else %}
-        Gender: Not specified
+        Gender: Outher are u really okey
     {% endif %}
     </h2>
-    {% endif %}
 
     <div class="mx-auto w-4/5 my-8">
         <a 

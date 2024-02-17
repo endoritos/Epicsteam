@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
  // findAll() - select all * FORM movies;
         // find() - Select * FORM movies WHERE id= 5
@@ -42,11 +40,18 @@ class MoviesController extends AbstractController
         $this->security = $security;
     }
 
-    #[Route('/games', methods:['GET'] , name: 'app_movies')]
-    public function index(): Response
+    #[Route('/games', methods:['GET'], name: 'app_movies')]
+    public function index(Request $request): Response
     {
-        $games = $this->gameRepository->findAll();
-
+        $visibility = $request->query->get('visibility');
+    
+        if ($visibility === 'private') {
+            $games = $this->gameRepository->findBy(['isPublic' => true]);
+        }  else {
+            
+            $games = $this->gameRepository->findBy(['isPublic' => false]);
+        }
+    
         return $this->render('movies/index.html.twig', [
             'games' => $games
         ]);
@@ -137,6 +142,7 @@ class MoviesController extends AbstractController
             } else {
                 $movie->setGameName($form->get('gameName')->getData());
                 $movie->setLink($form->get('link')->getData());
+                $movie->setIsPublic($form->get('isPublic')->getData());
 
                 $this->em->flush();
                 return $this->redirectToRoute('app_movies');
