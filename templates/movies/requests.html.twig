@@ -1,0 +1,17 @@
+{% extends "./base.html.twig" %}
+
+{% block body %}
+<h2 class="mt-11">Users</h2>
+
+<h2 class="pt-20 sm:text-5xl md:text-7xl text-4xl font-bold">Users</h2>
+<ul>
+    {% for user in users %}
+    <li class="flex items-center space-x-4 bg-blue-100 p-4 rounded-lg mt-11 shadow">
+        <img src="{{ user.profilePictures }}" alt="Profile Picture" class="w-24 h-24 rounded-full object-cover">
+        <h1 class="italic text-sm text-gray-800">
+            {{ user.username }}
+        </h1>
+    </li> 
+    {% endfor %}
+</ul>
+{% endblock %}

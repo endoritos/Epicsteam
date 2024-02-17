@@ -49,9 +49,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private Collection $games;
 
+     /**
+     * @ORM\OneToMany(targetEntity="Friendship", mappedBy="requester")
+     */
+    private Collection $sentFriendRequests;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Friendship", mappedBy="addressee")
+     */
+    private Collection $receivedFriendRequests;
+
+    public function getSentFriendRequests(): Collection
+    {
+        return $this->sentFriendRequests;
+    }
+
+    public function getReceivedFriendRequests(): Collection
+    {
+        return $this->receivedFriendRequests;
+    }
+
     public function __construct()
     {
         $this->games = new ArrayCollection();
+          // Initialize collections
+        $this->sentFriendRequests = new ArrayCollection();
+        $this->receivedFriendRequests = new ArrayCollection();
     }
 
     public function getId(): ?int
