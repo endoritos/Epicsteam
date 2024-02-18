@@ -39,6 +39,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function findByUsernameLike(string $username)
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.username LIKE :username')
+            ->setParameter('username', '%' . $username . '%')
+            ->select('u.id', 'u.username', 'u.profilePictures') // Include 'u.id' here
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */
@@ -63,11 +73,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //            ->getOneOrNullResult()
 //        ;
 //    }
- 
-    public function findAllUsernamesAndPictures()
+
+public function findAllUsernamesAndPictures()
     {
         return $this->createQueryBuilder('u')
-            ->select('u.username', 'u.profilePictures')
+            ->select('u.id', 'u.username', 'u.profilePictures') // Include 'u.id' here
             ->getQuery()
             ->getResult();
     }

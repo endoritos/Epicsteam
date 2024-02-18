@@ -2,8 +2,16 @@
 
 {% block body %}
 <h2 class="mt-11">Users</h2>
+<div>
+    <h2 class="pt-20 sm:text-5xl md:text-7xl text-4xl font-bold">Users</h2>
+        
+    <!-- Filter Form -->
+    <form method="get" action="{{ path('app_friends') }}" class="mb-5">
+        <input type="text" name="username" placeholder="Filter by username..." class="px-4 py-2 rounded" value="{{ app.request.query.get('username') }}">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
+    </form>
+</div>
 
-<h2 class="pt-20 sm:text-5xl md:text-7xl text-4xl font-bold">Users</h2>
 <ul>
     {% for user in users %}
     <li class="flex items-center space-x-4 bg-blue-100 p-4 rounded-lg mt-11 shadow">
@@ -11,7 +19,24 @@
         <h1 class="italic text-sm text-gray-800">
             {{ user.username }}
         </h1>
+        {% if app.user and app.user.id != user.id %}
+            {% set status = friendshipStatuses[user.id] ?? null %}
+            {% if status == 'pending' %}
+                <button disabled class="bg-gray-500 text-white font-bold py-2 px-4 rounded">
+                    Pending
+                </button>
+            {% else %}
+                <!-- Friend Request Form -->
+                <form method="post" action="{{ path('friend_request', {'addresseeId': user.id}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        Add as Friend
+                    </button>
+                </form>
+            {% endif %}
+        {% endif %}
     </li> 
-    {% endfor %}
+{% endfor %}
+
 </ul>
 {% endblock %}

@@ -100,7 +100,15 @@
                 </header>
             {% endblock %}
 
-            {% block body %}{% endblock %}
+            {% block body %}
+
+                    {% for message in app.flashes('success') %}
+                    <div class="fixed top-0 left-0 w-full z-50 bg-green-500 text-white text-center py-4">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+
+            {% endblock %}
 
             {% block footer %}
                 <footer class="bg-gray-600 py-6 mt-20">

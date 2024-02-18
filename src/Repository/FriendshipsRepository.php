@@ -33,6 +33,20 @@ class FriendshipsRepository extends ServiceEntityRepository
         ->getResult();
 }
 
+public function findFriendshipStatus($requesterId, $addresseeId): ?string {
+    $qb = $this->createQueryBuilder('f')
+        ->select('f.status')
+        ->where('f.requester = :requesterId AND f.addressee = :addresseeId')
+        ->setParameter('requesterId', $requesterId)
+        ->setParameter('addresseeId', $addresseeId)
+        ->setMaxResults(1);
+
+    $query = $qb->getQuery();
+    $result = $query->getOneOrNullResult();
+
+    return $result ? $result['status'] : null;
+}
+
 //    /**
 //     * @return Friendships[] Returns an array of Friendships objects
 //     */

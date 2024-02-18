@@ -14,23 +14,17 @@ class Friendships
     #[ORM\Column]
     private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(name="requester_id", referencedColumnName="id", nullable=false)
-     */
-    private $requester;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "requester_id", referencedColumnName: "id", nullable: false)]
+    private ?User $requester;
+    
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "addressee_id", referencedColumnName: "id", nullable: false)]
+    private ?User $addressee;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(name="addressee_id", referencedColumnName="id", nullable=false)
-     */
-    private $addressee;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     * Possible values: 'pending', 'accepted', 'declined'
-     */
-    private string $status = 'pending';
+    
+    #[ORM\Column(type: "string", length: 20)]
+    private string $status = 'pending'; // Possible values: 'pending', 'accepted', 'declined'
 
     public function getId(): ?int
     {

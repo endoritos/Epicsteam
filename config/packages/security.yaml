@@ -33,6 +33,7 @@ security:
     access_control:
         - { path: ^/games/create, roles: ROLE_USER }
         - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/friends, roles: ROLE_USER }
         - { path: ^/games/edit/\d+, roles: ROLE_USER }
 
 when@test:

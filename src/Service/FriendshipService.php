@@ -18,13 +18,24 @@ class FriendshipService
 
     public function sendFriendRequest(User $requester, User $addressee): void
     {
-        $friendship = new Friendships();
-        $friendship->setRequester($requester);
-        $friendship->setAddressee($addressee);
-        $friendship->setStatus('pending');
+            // Check for an existing request between these users
+        $existingRequest = $this->entityManager->getRepository(Friendships::class)
+        ->findOneBy([
+            'requester' => $requester,
+            'addressee' => $addressee,
+            // Optionally check 'status' => 'pending'
+        ]);
 
-        $this->entityManager->persist($friendship);
-        $this->entityManager->flush();
+            if (!$existingRequest) {
+            $friendship = new Friendships();
+            $friendship->setRequester($requester);
+            $friendship->setAddressee($addressee);
+            $friendship->setStatus('pending'); // Explicitly set status, though default is 'pending'
+
+
+            $this->entityManager->persist($friendship);
+            $this->entityManager->flush();
+        }
     }
 
     public function acceptFriendRequest(Friendships $friendship): void
