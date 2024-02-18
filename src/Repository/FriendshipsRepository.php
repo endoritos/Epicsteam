@@ -7,6 +7,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+
 /**
  * @extends ServiceEntityRepository<Friendships>
  *
@@ -47,6 +48,26 @@ public function findFriendshipStatus($requesterId, $addresseeId): ?string {
     return $result ? $result['status'] : null;
 }
 
+public function getReceivedFriendRequests(User $user)
+{
+    $qb = $this->createQueryBuilder('f');
+    $qb->where('f.addressee = :user')
+       ->setParameter('user', $user);
+
+    return $qb->getQuery()->getResult();
+}
+
+
+public function findAcceptedFriendships(User $user)
+{
+    $qb = $this->createQueryBuilder('f');
+    $qb->where('f.status = :status')
+       ->andWhere('f.requester = :user OR f.addressee = :user')
+       ->setParameter('status', 'accepted')
+       ->setParameter('user', $user);
+
+    return $qb->getQuery()->getResult();
+}
 //    /**
 //     * @return Friendships[] Returns an array of Friendships objects
 //     */

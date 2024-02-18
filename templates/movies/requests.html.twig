@@ -25,10 +25,24 @@
                 <button disabled class="bg-gray-500 text-white font-bold py-2 px-4 rounded">
                     Pending
                 </button>
+            {% elseif status == 'accepted' %}
+                <button class="bg-gray-500 text-white font-bold py-2 px-4 rounded">
+                    text 
+                </button>
+                {% elseif status == 'declind' %}
+                <button class="bg-gray-500 text-white font-bold py-2 px-4 rounded">
+                    declind 
+                </button>
+                <form method="post" action="{{ path('friend_request', {'addresseeId': user.id}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('friend_request') }}"> <!-- Ensure the CSRF token is correctly generated -->
+                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        Add as Friend
+                    </button>
+                </form>
             {% else %}
                 <!-- Friend Request Form -->
                 <form method="post" action="{{ path('friend_request', {'addresseeId': user.id}) }}">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('friend_request') }}"> <!-- Ensure the CSRF token is correctly generated -->
                     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         Add as Friend
                     </button>

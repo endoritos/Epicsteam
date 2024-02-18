@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Friendships;
 use App\Repository\FriendshipsRepository;
 use App\Service\FriendshipService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,49 +17,52 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 
+
 class FriendshipController extends AbstractController
 {
     private $friendshipService;
     private $entityManager;
     private $csrfTokenManager;
     private $requestStack;
+    private $friendshipsRepository;
 
-
-    public function __construct(FriendshipService $friendshipService, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager, RequestStack $requestStack) {
+    public function __construct(FriendshipService $friendshipService, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager, RequestStack $requestStack, FriendshipsRepository $friendshipsRepository) {
         $this->friendshipService = $friendshipService;
         $this->entityManager = $entityManager;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->requestStack = $requestStack;
+        $this->friendshipsRepository = $friendshipsRepository;
     }
 
-  #[Route('/friends', name: 'app_friends')]
-public function listFriends(Request $request, UserRepository $userRepository, FriendshipsRepository $friendshipRepository): Response {
-    $usernameFilter = $request->query->get('username');
-    $csrfToken = $this->csrfTokenManager->getToken('friend-request')->getValue();
-    $currentUser = $this->getUser();
+    #[Route('/friends', name: 'app_friends')]
+    public function listFriends(Request $request, UserRepository $userRepository, FriendshipsRepository $friendshipRepository): Response {
+        $usernameFilter = $request->query->get('username');
+        $csrfToken = $this->csrfTokenManager->getToken('friend-request')->getValue();
+        $currentUser = $this->getUser();
 
-    if ($usernameFilter) {
-        $users = $userRepository->findByUsernameLike($usernameFilter);
-    } else {
-        $users = $userRepository->findAllUsernamesAndPictures();
-    }
-
-    // New code to fetch friendship statuses
-    $friendshipStatuses = [];
-    foreach ($users as $user) {
-        if ($currentUser && $user['id'] !== $currentUser->getId()) {
-            $status = $friendshipRepository->findFriendshipStatus($currentUser->getId(), $user['id']);
-            $friendshipStatuses[$user['id']] = $status;
+        if ($usernameFilter) {
+            $users = $userRepository->findByUsernameLike($usernameFilter);
+        } else {
+            $users = $userRepository->findAllUsernamesAndPictures();
         }
+
+        // New code to fetch friendship statuses
+        $friendshipStatuses = [];
+        foreach ($users as $user) {
+            if ($currentUser && $user['id'] !== $currentUser->getId()) {
+                $status = $friendshipRepository->findFriendshipStatus($currentUser->getId(), $user['id']);
+                $friendshipStatuses[$user['id']] = $status;
+            }
+        }
+        $acceptedFriendships = $friendshipRepository->findAcceptedFriendships($currentUser);
+
+        return $this->render('movies/requests.html.twig', [
+            'users' => $users,
+            'csrf_token' => $csrfToken,
+            'friendshipStatuses' => $friendshipStatuses,
+            'acceptedFriendships' => $acceptedFriendships, // Pass statuses to the template
+        ]);
     }
-
-    return $this->render('movies/requests.html.twig', [
-        'users' => $users,
-        'csrf_token' => $csrfToken,
-        'friendshipStatuses' => $friendshipStatuses, // Pass statuses to the template
-    ]);
-}
-
 
     #[Route('/friend/request/{addresseeId}', name: 'friend_request', methods: ['POST'])]
     public function sendRequest(int $addresseeId): Response {
@@ -86,23 +90,36 @@ public function listFriends(Request $request, UserRepository $userRepository, Fr
         return $this->redirectToRoute('app_friends');
     }
 
-    #[Route('/friend/requests', name: 'view_friend_requests', methods: ['GET'])]
-    public function viewRequests(): Response
-    {
+    #[Route('/messages', name: 'app_messages', methods: ['GET'])]
+    public function viewRequests(): Response {
         $user = $this->getUser();
-        $receivedRequests = $this->friendshipService->getReceivedFriendRequests($user);
-        $sentRequests = $this->friendshipService->getSentFriendRequests($user);
-
-        // Render a template to show the friend requests
-        return $this->render('movies/requests.html.twig', [
+        $receivedRequests = $this->friendshipsRepository->getReceivedFriendRequests($user);
+    
+        $csrfTokensAccept = [];
+        $csrfTokensDecline = [];
+        foreach ($receivedRequests as $request) {
+            $csrfTokensAccept[$request->getId()] = $this->csrfTokenManager->getToken('accept' . $request->getId())->getValue();
+            $csrfTokensDecline[$request->getId()] = $this->csrfTokenManager->getToken('decline' . $request->getId())->getValue();
+        }
+    
+        return $this->render('movies/messages.html.twig', [
             'receivedRequests' => $receivedRequests,
-            'sentRequests' => $sentRequests,
+            'csrfTokensAccept' => $csrfTokensAccept,
+            'csrfTokensDecline' => $csrfTokensDecline,
         ]);
     }
+    
+
 
     #[Route('/friend/respond/{requestId}/{action}', name: 'respond_to_request', methods: ['POST'])]
-    public function respondToRequest(int $requestId, string $action): Response
-    {
+    public function respondToRequest(Request $request, int $requestId, string $action): Response {
+        // Validate CSRF token
+        $csrfToken = $request->request->get('_csrf_token');
+        $tokenValid = $this->csrfTokenManager->isTokenValid(new CsrfToken($action . $requestId, $csrfToken));
+    
+        if (!$tokenValid) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
         $friendship = $this->entityManager->getRepository(Friendships::class)->find($requestId);
 
         if (!$friendship) {
@@ -122,7 +139,7 @@ public function listFriends(Request $request, UserRepository $userRepository, Fr
         }
 
         // Redirect after responding
-        return $this->redirectToRoute('view_friend_requests');
+        return $this->redirectToRoute('app_messages');
     }
 
     // Add more methods as needed for your application's functionality

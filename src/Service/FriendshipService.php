@@ -5,17 +5,20 @@ namespace App\Service;
 
 use App\Entity\Friendships;
 use App\Entity\User;
+use App\Repository\FriendshipsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FriendshipService
 {
     private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private $friendshipRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, FriendshipsRepository $friendshipRepository)
     {
         $this->entityManager = $entityManager;
+        $this->friendshipRepository = $friendshipRepository;
     }
-
     public function sendFriendRequest(User $requester, User $addressee): void
     {
             // Check for an existing request between these users
@@ -36,6 +39,10 @@ class FriendshipService
             $this->entityManager->persist($friendship);
             $this->entityManager->flush();
         }
+    }
+    public function getReceivedFriendRequests(User $user)
+    {
+        return $this->friendshipRepository->getReceivedFriendRequests($user);
     }
 
     public function acceptFriendRequest(Friendships $friendship): void
@@ -66,5 +73,4 @@ class FriendshipService
 
         return $friendship ? $friendship->getStatus() : null;
     }
-
 }

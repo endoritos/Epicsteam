@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Friend Requests{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 mt-11">
+    <h1 class="text-xl font-bold my-4">Friend Requests</h1>
+    
+    {% for request in receivedRequests %}
+    <div class="mb-4 p-4 border rounded shadow">
+        <p><strong>From:</strong> {{ request.requester.username }}</p>
+        <div class="flex space-x-2 mt-2">
+            <form method="post" action="{{ path('respond_to_request', {'requestId': request.id, 'action': 'accept'}) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrfTokensAccept[request.id] }}">
+                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Accept</button>
+            </form>
+            <form method="post" action="{{ path('respond_to_request', {'requestId': request.id, 'action': 'decline'}) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrfTokensDecline[request.id] }}">
+                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Decline</button>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <p>No received friend requests.</p>
+{% endfor %}
+</div>
+{% endblock %}
