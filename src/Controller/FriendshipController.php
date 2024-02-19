@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Entity\Friendships;
 use App\Repository\FriendshipsRepository;
+use App\Repository\MessageRepository;
 use App\Service\FriendshipService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,6 +16,9 @@ use App\Repository\UserRepository;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Entity\Message;
+
 
 
 
@@ -26,12 +30,15 @@ class FriendshipController extends AbstractController
     private $requestStack;
     private $friendshipsRepository;
 
-    public function __construct(FriendshipService $friendshipService, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager, RequestStack $requestStack, FriendshipsRepository $friendshipsRepository) {
+    private $messageRepository;
+
+    public function __construct(FriendshipService $friendshipService, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager, RequestStack $requestStack, FriendshipsRepository $friendshipsRepository, MessageRepository $messageRepository) {
         $this->friendshipService = $friendshipService;
         $this->entityManager = $entityManager;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->requestStack = $requestStack;
         $this->friendshipsRepository = $friendshipsRepository;
+        $this->messageRepository = $messageRepository;
     }
 
     #[Route('/friends', name: 'app_friends')]
@@ -91,10 +98,19 @@ class FriendshipController extends AbstractController
     }
 
     #[Route('/messages', name: 'app_messages', methods: ['GET'])]
-    public function viewRequests(): Response {
+    public function viewRequests(EntityManagerInterface $entityManager): Response {
         $user = $this->getUser();
-        $receivedRequests = $this->friendshipsRepository->getReceivedFriendRequests($user);
     
+        
+        $unreadMessages = $this->messageRepository->findBy(['receiver' => $user, 'isRead' => false]);
+        foreach ($unreadMessages as $message) {
+            $message->setIsRead(true);
+            $entityManager->persist($message);
+        }
+        $entityManager->flush();
+    
+
+        $receivedRequests = $this->friendshipsRepository->getReceivedFriendRequests($user);
         $csrfTokensAccept = [];
         $csrfTokensDecline = [];
         foreach ($receivedRequests as $request) {
@@ -102,12 +118,24 @@ class FriendshipController extends AbstractController
             $csrfTokensDecline[$request->getId()] = $this->csrfTokenManager->getToken('decline' . $request->getId())->getValue();
         }
     
+        $acceptedFriendships = $this->friendshipsRepository->findAcceptedFriendships($user);
+        $friends = [];
+        foreach ($acceptedFriendships as $friendship) {
+            $friend = $user === $friendship->getRequester() ? $friendship->getAddressee() : $friendship->getRequester();
+            $friends[] = [
+                'id' => $friend->getId(),
+                'username' => $friend->getUsername(),
+            ];
+        }
+    
         return $this->render('movies/messages.html.twig', [
             'receivedRequests' => $receivedRequests,
             'csrfTokensAccept' => $csrfTokensAccept,
             'csrfTokensDecline' => $csrfTokensDecline,
+            'friends' => $friends, // Pass the list of friends to the template
         ]);
     }
+    
     
 
 
@@ -142,5 +170,50 @@ class FriendshipController extends AbstractController
         return $this->redirectToRoute('app_messages');
     }
 
-    // Add more methods as needed for your application's functionality
+    #[Route('/load-chat-messages/{friendId}', name: 'load_chat_messages', methods: ['GET'])]
+    public function loadChatMessages(int $friendId, MessageRepository $messageRepository): JsonResponse
+    {
+        $user = $this->getUser();
+        $messages = $messageRepository->findMessagesBetweenUsers($user->getId(), $friendId);
+
+        $formattedMessages = [];
+        foreach ($messages as $message) {
+            $formattedMessages[] = [
+                'from' => $message->getSender()->getUsername(),
+                'message' => $message->getMessage(),
+                // Add more fields as needed
+            ];
+        }
+
+        return $this->json($formattedMessages);
+    }
+
+    #[Route('/send-message', name: 'send_message', methods: ['POST'])]
+public function sendMessage(Request $request, EntityManagerInterface $entityManager): JsonResponse
+{
+    $user = $this->getUser(); 
+    $receiverId = $request->request->get('receiverId');
+    $messageText = $request->request->get('message');
+
+    if (!$user || !$receiverId || !$messageText) {
+        return $this->json(['status' => 'error', 'message' => 'Invalid data provided'], Response::HTTP_BAD_REQUEST);
+    }
+
+    $receiver = $entityManager->getRepository(User::class)->find($receiverId);
+    if (!$receiver) {
+        return $this->json(['status' => 'error', 'message' => 'Receiver not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    $message = new Message();
+    $message->setSender($user);
+    $message->setReceiver($receiver);
+    $message->setMessage($messageText);
+    $message->setCreatedAt(new \DateTimeImmutable());
+    $message->setIsRead(false);
+
+    $entityManager->persist($message);
+    $entityManager->flush();
+
+    return $this->json(['status' => 'success', 'message' => 'Message sent successfully']);
+}
 }

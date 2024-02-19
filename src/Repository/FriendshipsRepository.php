@@ -68,6 +68,20 @@ public function findAcceptedFriendships(User $user)
 
     return $qb->getQuery()->getResult();
 }
+
+
+public function findAcceptedFriendship(User $user, User $otherUser): ?Friendships
+{
+    $qb = $this->createQueryBuilder('f')
+        ->where('(f.requester = :user AND f.addressee = :otherUser) OR (f.requester = :otherUser AND f.addressee = :user)')
+        ->andWhere('f.status = :status')
+        ->setParameter('user', $user)
+        ->setParameter('otherUser', $otherUser)
+        ->setParameter('status', 'accepted')
+        ->setMaxResults(1);
+
+    return $qb->getQuery()->getOneOrNullResult();
+}
 //    /**
 //     * @return Friendships[] Returns an array of Friendships objects
 //     */

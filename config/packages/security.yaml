@@ -36,6 +36,8 @@ security:
         - { path: ^/friends, roles: ROLE_USER }
         - { path: ^/messages, roles: ROLE_USER }
         - { path: ^/games/edit/\d+, roles: ROLE_USER }
+        - { path: ^/games/\d+, roles: ROLE_USER }
+        - {path:  ^/games?visibility=private, roles: ROLE_USER}
 
 when@test:
     security:

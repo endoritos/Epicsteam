@@ -34,15 +34,15 @@
                     declind 
                 </button>
                 <form method="post" action="{{ path('friend_request', {'addresseeId': user.id}) }}">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('friend_request') }}"> <!-- Ensure the CSRF token is correctly generated -->
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('friend-request') }}"> <!-- Ensure the CSRF token is correctly generated -->
                     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                        Add as Friend
+                        try again
                     </button>
                 </form>
             {% else %}
                 <!-- Friend Request Form -->
                 <form method="post" action="{{ path('friend_request', {'addresseeId': user.id}) }}">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('friend_request') }}"> <!-- Ensure the CSRF token is correctly generated -->
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('friend-request') }}"> <!-- Ensure the CSRF token is correctly generated -->
                     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         Add as Friend
                     </button>

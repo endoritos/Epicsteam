@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Game;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -20,6 +21,21 @@ class GameRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Game::class);
     }
+
+    public function findPrivateGamesForFriends(User $user)
+{
+    $qb = $this->createQueryBuilder('g')
+        ->innerJoin('g.user', 'u') // Join with the User who created the game
+        ->innerJoin('App\Entity\Friendships', 'f', 'WITH', 
+            '(f.requester = :user AND u.id = f.addressee) OR (f.addressee = :user AND u.id = f.requester)')
+        ->where('g.isPublic = :isPublic')
+        ->andWhere('f.status = :status') // Assuming 'accepted' means they are friends
+        ->setParameter('user', $user)
+        ->setParameter('isPublic', true)
+        ->setParameter('status', 'accepted');
+
+    return $qb->getQuery()->getResult();
+}
 
 //    /**
 //     * @return Game[] Returns an array of Game objects

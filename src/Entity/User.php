@@ -44,6 +44,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: "datetime_immutable",nullable: true)]
     private ?\DateTimeImmutable $createdDate = null;
 
+     /**
+     * @ORM\OneToMany(targetEntity=Message::class, mappedBy="sender")
+     */
+    private Collection $sentMessages;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Message::class, mappedBy="receiver")
+     */
+    private Collection $receivedMessages;
+
     /**
      * @ORM\OneToMany(targetEntity=Game::class, mappedBy="user")
      */
@@ -75,6 +85,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
           // Initialize collections
         $this->sentFriendRequests = new ArrayCollection();
         $this->receivedFriendRequests = new ArrayCollection();
+        $this->sentMessages = new ArrayCollection();
+        $this->receivedMessages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -222,6 +234,64 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+    /**
+     * @return Collection|Message[]
+     */
+    public function getSentMessages(): Collection
+    {
+        return $this->sentMessages;
+    }
+
+    /**
+     * @return Collection|Message[]
+     */
+    public function getReceivedMessages(): Collection
+    {
+        return $this->receivedMessages;
+    }
+
+    public function addSentMessage(Message $message): self
+    {
+        if (!$this->sentMessages->contains($message)) {
+            $this->sentMessages[] = $message;
+            $message->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSentMessage(Message $message): self
+    {
+        if ($this->sentMessages->removeElement($message)) {
+            if ($message->getSender() === $this) {
+              // check if the message still references this user as the sender
+            }
+        }
+    
+        return $this;
+    }
+
+    public function addReceivedMessage(Message $message): self
+    {
+        if (!$this->receivedMessages->contains($message)) {
+            $this->receivedMessages[] = $message;
+            $message->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceivedMessage(Message $message): self
+    {
+        if ($this->receivedMessages->removeElement($message)) {
+            if ($message->getReceiver() === $this) {
+                // Similar to above, Doctrine handles the relationship,
+                // and you don't need to set the receiver to null.
+            }
+        }
+    
         return $this;
     }
 }
