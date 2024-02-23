@@ -4,9 +4,7 @@
 
 {% block body %}
 <form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+   
 
     {% if app.user %}
         <div class="mb-3">
@@ -19,8 +17,12 @@
             <h1 class="text-6xl pt-12 pb-8">
                 Please sign in
             </h1>
-
+ 
             <label for="inputEmail">Email</label>
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
+
             <input 
                 type="text" 
                 value="{{ last_email }}" 

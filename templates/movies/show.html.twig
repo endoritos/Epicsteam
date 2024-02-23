@@ -10,16 +10,18 @@
         <div class="py-10 text-center">
             <div class="inline-block sm:pt-1">
                 <h2 class="font-bold">
-                    User.name
+                    made bye;
                 </h2>
 
                 <p class="text-sm text-gray-600">
-                    timecreated: {{game.id}}
+                    {{game.user.username}}
                 </p>
             </div>
         </div>
 
-        <a href="{{ game.link }}" target="_blank">
+        
+        <a href="{{ game.link }}?userId={{ userId }}&gameId={{ game.id }}&hash={{ hash }}" target="_blank" class="bg-blue-500 font-bold py-2 px-4 rounded transition-all hover:bg-blue-300"
+        target="_blank">
             <img
                 src="{{ game.imagePath }}"
                 class="rounded-xl w-full shadow-xl"
@@ -27,22 +29,23 @@
             />
         </a>        
 
-        {% if app.user and game.user.id == app.user.id %}
+        {% if app.user and (game.user.id == app.user.id or app.user.isAdmin) %}
         <p class="text-xl py-6">
-            what u here for
+            What are you here for?
         </p>
-
-            <a 
-                href="/games/edit/{{ game.id }}"
-                class="bg-green-500 font-bold py-2 px-4 rounded transition-all hover:bg-green-300">
-                Edit Game 
-            </a>
-
-            <a 
-                href="/games/delete/{{ game.id }}"
-                class="bg-red-500 font-bold py-2 px-4 ml-6 rounded transition-all hover:bg-red-300">
-                Delete Game
-            </a> 
-         {% endif %} 
+    
+        <a 
+            href="/games/edit/{{ game.id }}"
+            class="bg-green-500 font-bold py-2 px-4 rounded transition-all hover:bg-green-300">
+            Edit Game 
+        </a>
+    
+        <a 
+            href="/games/delete/{{ game.id }}"
+            class="bg-red-500 font-bold py-2 px-4 ml-6 rounded transition-all hover:bg-red-300">
+            Delete Game
+        </a> 
+    {% endif %}
+    
     </div>
 {% endblock %}

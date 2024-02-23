@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
 
  // findAll() - select all * FORM movies;
         // find() - Select * FORM movies WHERE id= 5
@@ -45,18 +45,25 @@ class MoviesController extends AbstractController
         $this->friendshipsRepository = $friendshipsRepository;
     }
 
+
     #[Route('/games', methods:['GET'], name: 'app_movies')]
-    public function index(Request $request, Security $security): Response
+    public function index(Request $request, Security $security, GameRepository $gameRepository): Response
     {
         $user = $this->getUser();
         $visibility = $request->query->get('visibility');
+        $isAdmin = $user !== null && method_exists($user, 'getIsAdmin') ? $user->getIsAdmin() : false;
 
-        if ($visibility === 'private' && !$security->isGranted('ROLE_USER')) {
+        if ($visibility === 'private' && !$security->isGranted('ROLE_USER',)) {
             throw $this->createAccessDeniedException('You do not have permission to view private games.');
         }
     
         if ($visibility === 'private') {
-            $games = $this->gameRepository->findPrivateGamesForFriends($user);
+            if ($isAdmin) {
+                $games = $gameRepository->findby(['isPublic' => true]);
+            } else {
+                // Fetch private games that the user is allowed to see (e.g., games of friends)
+                $games = $gameRepository->findPrivateGamesForFriends($user);
+            }
         }  else {
             
             $games = $this->gameRepository->findBy(['isPublic' => false]);
@@ -66,6 +73,7 @@ class MoviesController extends AbstractController
             'games' => $games
         ]);
     }
+
 
     #[Route('/games/create', name: 'create_game')] // Corrected the route name
     public function create(Request $request, EntityManagerInterface $em): Response
@@ -165,6 +173,7 @@ class MoviesController extends AbstractController
         ]);
     }
 
+
     #[Route('/games/delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_movie')]
     public function delete($id): Response
     {
@@ -181,38 +190,35 @@ class MoviesController extends AbstractController
     public function show(int $id, GameRepository $gameRepository, Security $security, FriendshipsRepository $friendshipsRepository): Response
     {
         $game = $gameRepository->find($id);
-        $user = $security->getUser(); // The currently authenticated user
+        $user = $security->getUser();
     
         if (!$game) {
             throw $this->createNotFoundException('The game does not exist.');
         }
     
-        $gameCreator = $game->getUser();
-        
-        // Check for public games or if the user is the game creator themselves
-        if ($game->getIsPublic() || $user === $gameCreator) {
-            // Allow access to public games and games created by the current user
-            return $this->render('movies/show.html.twig', ['game' => $game]);
-        }
-    
-        // At this point, the game is private and not created by the current user
-        // Ensure user is logged in
         if (!$user) {
             // Redirect non-authenticated users to the login page
             return $this->redirectToRoute('app_login');
         }
     
-        // Perform friendship check for private games
-        $friendship = $friendshipsRepository->findAcceptedFriendship($user, $gameCreator);
-        
-        if (!$friendship) {
-            // If there's no accepted friendship, deny access to private game
-            throw new AccessDeniedException('You do not have permission to view this private game.');
+        // Assuming you need to calculate $hash for all accessible games,
+        // not just for a specific condition
+        $secret = 'STAYWOKE';
+        $hash = sha1($user->getId() . $game->getGameApi() . $secret);
+    
+        $gameMaker = $game->getUser(); // Get the game maker
+        $isAdmin = method_exists($user, 'getIsAdmin') ? $user->getIsAdmin() : false; // Check if the user is an admin
+    
+        if ($game->getIsPublic() || $user === $gameMaker || $friendshipsRepository->findAcceptedFriendship($user, $gameMaker) || $isAdmin) {
+            // The game is accessible; render the appropriate view
+            return $this->render('movies/show.html.twig', [
+                'game' => $game,
+                'hash' => $hash, // Pass the hash to the Twig template if needed
+                'userId' => $user->getId() // Include if relevant to the game template
+            ]);
+        } else {
+            // User is not allowed to access this game
+            return new Response('You do not have access to this private game.', 403);
         }
-    
-        // The game is private, but the user is a friend of the creator
-        return $this->render('movies/show.html.twig', ['game' => $game]);
     }
-    
-    
-}
+}    

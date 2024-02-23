@@ -53,7 +53,7 @@ class FriendshipController extends AbstractController
             $users = $userRepository->findAllUsernamesAndPictures();
         }
 
-        // New code to fetch friendship statuses
+        // user status 
         $friendshipStatuses = [];
         foreach ($users as $user) {
             if ($currentUser && $user['id'] !== $currentUser->getId()) {
@@ -216,4 +216,98 @@ public function sendMessage(Request $request, EntityManagerInterface $entityMana
 
     return $this->json(['status' => 'success', 'message' => 'Message sent successfully']);
 }
+
+#[Route('/admin/user/{userId}/{action}', name: 'admin_block_user', methods: ['POST'])]
+public function blockUnblockUser(int $userId, string $action, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response {
+    $csrfToken = $request->request->get('_csrf_token');
+
+    if ($action === 'block' && !$this->isCsrfTokenValid('block-user', $csrfToken)) {
+        throw new AccessDeniedException('Invalid CSRF token for blocking user.');
+    }
+
+    if ($action === 'unblock' && !$this->isCsrfTokenValid('unblock-user', $csrfToken)) {
+        throw new AccessDeniedException('Invalid CSRF token for unblocking user.');
+    }
+
+    $user = $userRepository->find($userId);
+    if (!$user) {
+        throw $this->createNotFoundException('User not found.');
+    }
+
+    if ($action === 'block') {
+        $user->setIsBlocked(true);
+    } elseif ($action === 'unblock') {
+        $user->setIsBlocked(false);
+    } else {
+        throw new \InvalidArgumentException('Invalid action.');
+    }
+
+    $entityManager->flush();
+
+    $this->addFlash('success', $action === 'block' ? 'User blocked successfully!' : 'User unblocked successfully!');
+    return $this->redirectToRoute('app_friends');
+}
+
+
+#[Route('/admin/user/{userId}/toggle-message', name: 'admin_toggle_message_sending', methods: ['POST'])]
+public function toggleMessageSending(int $userId, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager): Response {
+    $csrfToken = new CsrfToken('toggle-message-' . $userId, $request->request->get('_csrf_token'));
+
+    if (!$csrfTokenManager->isTokenValid($csrfToken)) {
+        throw new AccessDeniedException('Invalid CSRF token.');
+    }
+
+    $user = $userRepository->find($userId);
+        if (!$user) {
+            throw $this->createNotFoundException('User not found.');
+        }
+
+    $action = $request->request->get('action');
+
+    // Now, check the action value to decide what to do
+    if ($action === 'block-messages') {
+        $user->setCanSendMessages(false);
+    } elseif ($action === 'allow-messages') {
+        $user->setCanSendMessages(true);
+    } else {
+        throw new \InvalidArgumentException('Invalid action.');
+    }
+
+    $entityManager->flush();
+
+    $this->addFlash('success', $user->getCanSendMessages() ? 'User is now allowed to send messages.' : 'User is now blocked from sending messages.');
+    return $this->redirectToRoute('app_friends');
+}
+
+// Assuming you might also want a similar function for friend requests
+#[Route('/admin/user/{userId}/toggle-friend-request', name: 'admin_toggle_friend_request', methods: ['POST'])]
+    public function toggleFriendRequestSending(int $userId, UserRepository $userRepository, Request $request, EntityManagerInterface $entityManager, CsrfTokenManagerInterface $csrfTokenManager): Response {
+        $csrfToken = new CsrfToken('toggle-friend-request-' . $userId, $request->request->get('_csrf_token'));
+
+        if (!$csrfTokenManager->isTokenValid($csrfToken)) {
+            throw new AccessDeniedException('Invalid CSRF token.');
+        }
+
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            throw $this->createNotFoundException('User not found.');
+        }
+
+        $action = $request->request->get('action');
+        if ($action === 'block-friend-request') {
+            $user->setCanSendFriendRequests(true);
+        } elseif ($action === 'allow-friend-requests') {
+            $user->setCanSendFriendRequests(false);
+        } else {
+            throw new \InvalidArgumentException('Invalid action');
+        }
+        
+
+        // Toggle the ability to send friend requests
+        $user->setCanSendFriendRequests(!$user->getCanSendFriendRequests());
+        $entityManager->flush();
+
+        $this->addFlash('success', $user->getCanSendFriendRequests() ? 'User is now allowed to send friend requests.' : 'User is now blocked from sending friend requests.');
+        return $this->redirectToRoute('app_friends');
+    }
 }

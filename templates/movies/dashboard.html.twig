@@ -1,0 +1,35 @@
+{# templates/admin/dashboard.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+<h1>Admin Dashboard</h1>
+
+<section>
+    <h2>Users</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <a href="{{ path('admin_block_user', {'id': user.id}) }}">Block/Unblock</a> |
+                    <a href="{{ path('admin_restrict_user_messaging', {'id': user.id}) }}">Restrict/Allow Messaging</a> |
+                    <a href="{{ path('admin_restrict_user_friend_requests', {'id': user.id}) }}">Restrict/Allow Friend Requests</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -69,6 +70,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private Collection $receivedFriendRequests;
 
+    #[ORM\Column(type: "boolean")]
+    private ?bool $isAdmin = false;
+
+    #[ORM\Column(type: "boolean")]
+    private ?bool $isBlocked = false;
+
+    #[ORM\Column(type: "boolean")]
+    private ?bool $canSendMessages = true;
+
+    #[ORM\Column(type: "boolean")]
+    private ?bool $canSendFriendRequests = true;
+
     public function getSentFriendRequests(): Collection
     {
         return $this->sentFriendRequests;
@@ -87,6 +100,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->receivedFriendRequests = new ArrayCollection();
         $this->sentMessages = new ArrayCollection();
         $this->receivedMessages = new ArrayCollection();
+        $this->canSendMessages = false; // false for some reason = 0
+        $this->canSendFriendRequests = false;
     }
 
     public function getId(): ?int
@@ -292,6 +307,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
     
+        return $this;
+        }
+    public function getIsAdmin(): ?bool
+    {
+        return $this->isAdmin;
+    }
+
+    public function setIsAdmin(bool $isAdmin): self
+    {
+        $this->isAdmin = $isAdmin;
+        return $this;
+    }
+
+    public function getIsBlocked(): ?bool
+    {
+        return $this->isBlocked;
+    }
+
+    public function setIsBlocked(bool $isBlocked): self
+    {
+        $this->isBlocked = $isBlocked;
+        return $this;
+    }
+
+    public function getCanSendMessages(): ?bool
+    {
+        return $this->canSendMessages;
+    }
+
+    public function setCanSendMessages(bool $canSendMessages): self
+    {
+        $this->canSendMessages = $canSendMessages;
+        return $this;
+    }
+
+    public function getCanSendFriendRequests(): ?bool
+    {
+        return $this->canSendFriendRequests;
+    }
+
+    public function setCanSendFriendRequests(bool $canSendFriendRequests): self
+    {
+        $this->canSendFriendRequests = $canSendFriendRequests;
         return $this;
     }
 }

@@ -28,6 +28,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */
+    
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {
@@ -44,7 +45,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $this->createQueryBuilder('u')
             ->where('u.username LIKE :username')
             ->setParameter('username', '%' . $username . '%')
-            ->select('u.id', 'u.username', 'u.profilePictures') // Include 'u.id' here
+            ->select('u.id', 'u.username', 'u.profilePictures','u.blocked') 
             ->getQuery()
             ->getResult();
     }
@@ -77,7 +78,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 public function findAllUsernamesAndPictures()
     {
         return $this->createQueryBuilder('u')
-            ->select('u.id', 'u.username', 'u.profilePictures') // Include 'u.id' here
+            ->select('u.id', 'u.username', 'u.profilePictures','u.isBlocked','u.canSendMessages','u.canSendFriendRequests') 
             ->getQuery()
             ->getResult();
     }
