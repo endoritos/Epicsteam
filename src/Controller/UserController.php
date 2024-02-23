@@ -3,6 +3,8 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\GameRepository;
+use App\Repository\ScoreRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +27,7 @@ class UserController extends AbstractController
 
     #[Route('/profile', methods: ['GET'], name: 'user_profile')]
     // #[IsGranted('ROLE_USER')] maby for later use case 
-    public function profile(): Response
+    public function profile(GameRepository $gameRepository, ScoreRepository $scoreRepository): Response
     {
         // Get the currently logged-in user
         $user = $this->getUser();
@@ -35,9 +37,17 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        $hasCreatedGame = !empty($gameRepository->findBy(['user' => $user]));
+
+        $userHasPlayedGame = !empty($scoreRepository->findBy(['user'=> $user]));
+
+
+
         // Otherwise, render the profile page with the user's information
         return $this->render('movies/profile.html.twig', [
             'user' => $user,
+            'hasCreatedGame' => $hasCreatedGame,
+            'userHasPlayedGame'=> $userHasPlayedGame
         ]);
     }
 

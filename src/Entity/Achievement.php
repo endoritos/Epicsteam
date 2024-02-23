@@ -18,8 +18,7 @@ class Achievement
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    #[ORM\ManyToOne(targetEntity: Game::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private Game $game;
 
     #[ORM\Column(type: 'string', length: 255)]

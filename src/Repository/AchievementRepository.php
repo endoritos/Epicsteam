@@ -21,6 +21,12 @@ class AchievementRepository extends ServiceEntityRepository
         parent::__construct($registry, Achievement::class);
     }
 
+
+    public function findOneByAchievementName(string $achievementName): ?Achievement
+    {
+        return $this->findOneBy(['achievementName' => $achievementName]);
+    }
+
 //    /**
 //     * @return Achievement[] Returns an array of Achievement objects
 //     */

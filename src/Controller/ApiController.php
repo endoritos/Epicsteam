@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,6 +22,7 @@ class ApiController extends AbstractController
         return sha1($user->getId() . $game->getGameApi() . 'STAYWOKE');
     }
 
+            // endy u have to decod is code 
 
     #[Route('/endy/user/info', name: 'get_user_info', methods: ['GET'])]
     public function getUserInfo(Request $request, UserRepository $userRepository, GameRepository $gameRepository): Response
@@ -67,4 +69,14 @@ class ApiController extends AbstractController
         // Verwerk de request data en maak een achievement aan
         return $this->json(['message' => 'Achievement aangemaakt']);
     }
+
+    #[Route('/api/users/{id}/achievements', methods: ['GET'])]
+public function getUserAchievements(int $id, UserRepository $userRepository): JsonResponse {
+    $user = $userRepository->find($id);
+    $achievements = []; // Fetch achievements for $user
+
+    // Transform $achievements to array or DTOs
+
+    return new JsonResponse($achievements);
+}
 } 

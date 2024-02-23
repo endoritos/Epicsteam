@@ -41,4 +41,38 @@
     <p>You are not logged in.</p></div>
 {% endif %}
 
+
+<h2 class="text-white bg-purple-700 hover:bg-purple-800 text-lg focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+>User Achievements</h2>
+
+
+{% if user.profilePictures is not empty %}
+    <div class="achievement  w-100 h-180 uppercase border border-gray-500 text-lg py-4 px-6 rounded transition transition-all bg-gray-800 text-white hover:bg-white hover:text-gray-800">
+        <img 
+        src="https://www.togoparts.com/magazine/wp-content/uploads/2021/06/Untitled-design-22.png" alt="Profile Picture Achievement">
+        <p>Congratulations! You've earned a profile picture achievement.</p>
+    </div>
+    {% endif %}
+
+    {% if hasCreatedGame %}
+        <div class="achievement  w-100 h-180 uppercase border border-gray-500 text-lg py-4 px-6 rounded transition transition-all bg-gray-800 text-white hover:bg-white hover:text-gray-800">
+            <img src="https://cdn2.unrealengine.com/the-game-awards-2023-3-3840x2160-a60bbb379cfb.png" alt="Game Creator Achievement">
+            <p>Congratulations on creating your first game!</p>
+        </div>
+    {% endif %}
+
+    {% if userHasPlayedGame %}
+    <div class="achievement  w-100 h-180 uppercase border border-gray-500 text-lg py-4 px-6 rounded transition transition-all bg-gray-800 text-white hover:bg-white hover:text-gray-800">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTnOfzQbN0K8O14vVknEWST6c9mFU1-zi8qw&usqp=CAU" alt="Game Player Achievement">
+            <p>Awesome! You've played a game!</p>
+        </div>
+    {% endif %}
+
+    {# {% if userIsHighScoreHolder %}
+        <div class="achievement  w-100 h-180 uppercase border border-gray-500 text-lg py-4 px-6 rounded transition transition-all bg-gray-800 text-white hover:bg-white hover:text-gray-800">
+            <img src="https://www.lalibre.be/resizer/AkhcqXTVbZJM7mK0uDaeb8iHT8w=/1200x800/filters:format(jpeg):focal(465x240:475x230)/cloudfront-eu-central-1.images.arcpublishing.com/ipmgroup/SF4FKKKOXZDNTNJCWID3YYOEKI.jpg" alt="High Score Achievement">
+            <p>Wow! You're holding the high score!</p>
+        </div>
+    {% endif %}  #}
+
 {% endblock %}
