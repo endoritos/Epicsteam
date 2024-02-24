@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Game;
 use App\Entity\Score;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,6 +21,14 @@ class ScoreRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Score::class);
+    }
+
+    public function findByUserAndGame(User $user, Game $game): ?Score
+    {
+        return $this->findOneBy([
+            'user' => $user,
+            'game' => $game,
+        ]);
     }
 
 //    /**
