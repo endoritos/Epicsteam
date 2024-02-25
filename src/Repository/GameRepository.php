@@ -25,15 +25,26 @@ class GameRepository extends ServiceEntityRepository
     public function findPrivateGamesForFriends(User $user)
 {
     $qb = $this->createQueryBuilder('g')
-        ->innerJoin('g.user', 'u') // Join with the User who created the game
+        ->innerJoin('g.user', 'u')
         ->innerJoin('App\Entity\Friendships', 'f', 'WITH', 
             '(f.requester = :user AND u.id = f.addressee) OR (f.addressee = :user AND u.id = f.requester)')
-        ->where('g.isPublic = :isPublic')
-        ->andWhere('f.status = :status') // Assuming 'accepted' means they are friends
+        ->where('g.isPublic = :isPublic OR g.user = :owner')
+        ->andWhere('f.status = :status OR g.user = :owner') 
         ->setParameter('user', $user)
         ->setParameter('isPublic', true)
-        ->setParameter('status', 'accepted');
+        ->setParameter('status', 'accepted')
+        ->setParameter('owner', $user);
 
+    return $qb->getQuery()->getResult();
+}
+
+
+public function findPrivateGamesForUser($user)
+{
+    $qb = $this->createQueryBuilder('g')
+        ->where('g.isPublic = true') 
+        ->andWhere('g.user = :user') 
+        ->setParameter('user', $user);
     return $qb->getQuery()->getResult();
 }
 

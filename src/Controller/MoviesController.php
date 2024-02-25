@@ -61,8 +61,8 @@ class MoviesController extends AbstractController
             if ($isAdmin) {
                 $games = $gameRepository->findby(['isPublic' => true]);
             } else {
-                // Fetch private games that the user is allowed to see (e.g., games of friends)
                 $games = $gameRepository->findPrivateGamesForFriends($user);
+                $games = $gameRepository->findPrivateGamesForUser($user);
             }
         }  else {
             
