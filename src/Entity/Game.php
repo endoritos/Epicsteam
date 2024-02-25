@@ -35,7 +35,7 @@ class Game
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePath = null;
     #[ORM\Column(type: "boolean")]
-    private bool $isPublic = true;
+    private bool $isPublic = false;
 
     public function __construct() {
         // Automatically set the created date to now

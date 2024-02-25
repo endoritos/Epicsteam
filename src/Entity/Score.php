@@ -26,7 +26,7 @@ class Score
 
     #[ORM\Column(type: 'integer')]
     #[ORM\JoinColumn(nullable: true)]
-    private int $topScore;
+    private ?int $topScore = null;
 
     public function getId(): ?int
     {

@@ -31,6 +31,18 @@ class ScoreRepository extends ServiceEntityRepository
         ]);
     }
 
+
+    public function findTopScoresForGame($gameId)
+{
+    return $this->createQueryBuilder('s')
+        ->where('s.game = :gameId')
+        ->setParameter('gameId', $gameId)
+        ->orderBy('s.topScore', 'ASC')
+        ->setMaxResults(3)
+        ->getQuery()
+        ->getResult();
+}
+
 //    /**
 //     * @return Score[] Returns an array of Score objects
 //     */

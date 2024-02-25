@@ -46,6 +46,21 @@
             Delete Game
         </a> 
     {% endif %}
+
+    <div class="mt-8">
+        <h3 class="text-lg font-semibold">Leaderboard (Top Times)-------------------------------------------   score ---------------------------------------------------------------------time</h3>
+        <div>
+            {% for score in leaderboardScores %}
+                <div class="flex justify-between items-center py-2">
+                    <div>{{ score.user.username }}</div>
+                    <div>{{ score.score }}</div>
+                    <div>{{ score.topScore }} minutes</div>
+                </div>
+            {% else %}
+                <p>No scores yet.</p>
+            {% endfor %}
+        </div>
+    </div>
     
     </div>
 {% endblock %}

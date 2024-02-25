@@ -7,6 +7,7 @@ use App\Entity\Game;
 use App\Form\MovieFormType;
 use App\Repository\FriendshipsRepository;
 use App\Repository\GameRepository;
+use App\Repository\ScoreRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -177,7 +178,6 @@ class MoviesController extends AbstractController
     #[Route('/games/delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_movie')]
     public function delete($id): Response
     {
-        // $this->checkLoggedInUser($id);
         $movie = $this->gameRepository->find($id);
         $this->em->remove($movie);
         $this->em->flush();
@@ -187,37 +187,35 @@ class MoviesController extends AbstractController
 
 
     #[Route('/games/{id}', name: 'game_show')]
-    public function show(int $id, GameRepository $gameRepository, Security $security, FriendshipsRepository $friendshipsRepository): Response
+    public function show(int $id, GameRepository $gameRepository, Security $security, FriendshipsRepository $friendshipsRepository,ScoreRepository $scoreRepository): Response
     {
         $game = $gameRepository->find($id);
         $user = $security->getUser();
+        $leaderboardScores = $scoreRepository->findTopScoresForGame($id);
+    
     
         if (!$game) {
             throw $this->createNotFoundException('The game does not exist.');
         }
     
         if (!$user) {
-            // Redirect non-authenticated users to the login page
             return $this->redirectToRoute('app_login');
         }
     
-        // Assuming you need to calculate $hash for all accessible games,
-        // not just for a specific condition
         $secret = 'STAYWOKE';
         $hash = sha1($user->getId() . $game->getGameApi() . $secret);
     
-        $gameMaker = $game->getUser(); // Get the game maker
-        $isAdmin = method_exists($user, 'getIsAdmin') ? $user->getIsAdmin() : false; // Check if the user is an admin
+        $gameMaker = $game->getUser();
+        $isAdmin = method_exists($user, 'getIsAdmin') ? $user->getIsAdmin() : false;
     
-        if ($game->getIsPublic() || $user === $gameMaker || $friendshipsRepository->findAcceptedFriendship($user, $gameMaker) || $isAdmin) {
-            // The game is accessible; render the appropriate view
+        if (!$game->getIsPublic() || $user === $gameMaker || $friendshipsRepository->findAcceptedFriendship($user, $gameMaker) || $isAdmin) {
             return $this->render('movies/show.html.twig', [
                 'game' => $game,
-                'hash' => $hash, // Pass the hash to the Twig template if needed
-                'userId' => $user->getId() // Include if relevant to the game template
+                'hash' => $hash,
+                'userId' => $user->getId(), 
+                'leaderboardScores' => $leaderboardScores,
             ]);
         } else {
-            // User is not allowed to access this game
             return new Response('You do not have access to this private game.', 403);
         }
     }
