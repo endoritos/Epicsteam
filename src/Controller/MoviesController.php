@@ -221,4 +221,12 @@ class MoviesController extends AbstractController
             return new Response('You do not have access to this private game.', 403);
         }
     }
+
+    #[Route('/game/postman', name:'app_postman')]
+    public function postman(): Response
+    {
+        return $this->render('movies/postman.html.twig', [
+            
+        ]);
+    }
 }    

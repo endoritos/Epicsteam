@@ -78,6 +78,7 @@ class ApiController extends AbstractController
         $gameId = $request->request->get('gameId');
         $receivedHash = $request->request->get('hash');
         $scoreValue = (int) $request->request->get('score');
+        $bestTime = (int) $request->request->get('bestTime');
 
         $user = $userRepository->find($userId);
         $game = $gameRepository->find($gameId);
@@ -91,11 +92,12 @@ class ApiController extends AbstractController
             throw new UnauthorizedHttpException('', 'Invalid hash');
         }
 
-        // Always create a new score entry
         $score = new Score();
         $score->setUser($user);
         $score->setGame($game);
         $score->setScore($scoreValue);
+        $score->setTopScore($bestTime);
+
         $em->persist($score);
         $em->flush();
 

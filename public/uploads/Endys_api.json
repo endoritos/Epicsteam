@@ -1,0 +1,104 @@
+{
+	"info": {
+		"_postman_id": "21325acf-7a9d-46a7-8841-f44357c461f1",
+		"name": "Endy's api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30541675"
+	},
+	"item": [
+		{
+			"name": "Get user info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/endy/user/info/?userId=1&gameId=4&hash=8f3dbb8e3a17e70dda5099a1dbccd55abf61436e",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"endy",
+						"user",
+						"info",
+						""
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "gameId",
+							"value": "4"
+						},
+						{
+							"key": "hash",
+							"value": "8f3dbb8e3a17e70dda5099a1dbccd55abf61436e"
+						}
+					]
+				},
+				"description": "StartFragment\n\n- **Method**: GET\n    \n- **URL**[: <code>http://127.0.0.1:8000/endy/user/info</code>](http://127.0.0.1:8000/endy/user/info) use domain name insted of local server when de website hase been deployed domain name will most likey be [https://109118.cvoatweb.be/](https://109118.cvoatweb.be/).\n    \n- **Params**: Add the following query parameters based on your requirements:\n    \n    - `userId`: The ID of the user you want to retrieve information for.\n        \n    - `gameId`: The ID of the game.\n        \n    - `hash`: The SHA1 hash generated as per your application's logic.\n        \n\nThis 3 information was giving to u when u strated a game form the mainsite if u dont have it try again."
+			},
+			"response": []
+		},
+		{
+			"name": "Add score ",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "gameId",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "hash",
+							"value": "8f3dbb8e3a17e70dda5099a1dbccd55abf61436e",
+							"type": "text"
+						},
+						{
+							"key": "score",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "bestTime",
+							"value": "77",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/endy/score",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"endy",
+						"score"
+					]
+				},
+				"description": "StartFragment\n\n1. **Set Request Type and URL**:\n    \n    - Method: POST\n        \n    - URL: `http://127.0.0.1:8000/endy/score` (Adjust the domain and port as necessary for your environment.)\n        \n2. **Headers**:\n    \n    - Set `Content-Type` to `application/x-www-form-urlencoded`\n        \n3. **Body**:\n    \n    - Go to the \"Body\" tab.\n        \n    - Select \"x-www-form-urlencoded\".\n        \n    - Add the keys `userId`, `gameId`, `hash`, `score`,`bestTime` filling in the values you wish to test with."
+			},
+			"response": []
+		}
+	]
+}
