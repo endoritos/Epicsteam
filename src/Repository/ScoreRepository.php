@@ -43,6 +43,18 @@ class ScoreRepository extends ServiceEntityRepository
         ->getResult();
 }
 
+public function findScoresForChart(int $gameId): array
+{
+    return $this->createQueryBuilder('s')
+        ->select('u.username AS username, SUM(s.score) AS totalScore')
+        ->join('s.user', 'u')
+        ->where('s.game = :gameId')
+        ->setParameter('gameId', $gameId)
+        ->groupBy('u.username')
+        ->getQuery()
+        ->getResult();
+}
+
 //    /**
 //     * @return Score[] Returns an array of Score objects
 //     */

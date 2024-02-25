@@ -187,13 +187,11 @@ class MoviesController extends AbstractController
 
 
     #[Route('/games/{id}', name: 'game_show')]
-    public function show(int $id, GameRepository $gameRepository, Security $security, FriendshipsRepository $friendshipsRepository,ScoreRepository $scoreRepository): Response
+    public function show(int $id, GameRepository $gameRepository, Security $security, FriendshipsRepository $friendshipsRepository, ScoreRepository $scoreRepository): Response
     {
         $game = $gameRepository->find($id);
         $user = $security->getUser();
-        $leaderboardScores = $scoreRepository->findTopScoresForGame($id);
-    
-    
+        
         if (!$game) {
             throw $this->createNotFoundException('The game does not exist.');
         }
@@ -202,24 +200,27 @@ class MoviesController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
     
+        $leaderboardScores = $scoreRepository->findTopScoresForGame($id);
+        $scoresForChart = $scoreRepository->findScoresForChart($id);
+        
         $secret = 'STAYWOKE';
         $hash = sha1($user->getId() . $game->getGameApi() . $secret);
-    
+        
         $gameMaker = $game->getUser();
         $isAdmin = method_exists($user, 'getIsAdmin') ? $user->getIsAdmin() : false;
-    
+        
         if (!$game->getIsPublic() || $user === $gameMaker || $friendshipsRepository->findAcceptedFriendship($user, $gameMaker) || $isAdmin) {
             return $this->render('movies/show.html.twig', [
                 'game' => $game,
                 'hash' => $hash,
-                'userId' => $user->getId(), 
+                'userId' => $user->getId(),
                 'leaderboardScores' => $leaderboardScores,
+                'scoresForChart' => $scoresForChart, // Pass this data to the template
             ]);
         } else {
             return new Response('You do not have access to this private game.', 403);
         }
     }
-
     #[Route('/game/postman', name:'app_postman')]
     public function postman(): Response
     {

@@ -1,38 +1,34 @@
 {% extends "./base.html.twig" %}
+
 {% block body %}
+<div class="sm:w-3/5 w-4/5 mx-auto">
+    <a class="pt-20 sm:text-5xl md:text-7xl text-4xl font-bold text-center">
+        {{ game.gameName }}
+    </a>
 
-    
-    <div class="sm:w-3/5 w-4/5 mx-auto">
-        <a class="pt-20 sm:text-5xl md:text-7xl text-4xl font-bold text-center">
-            {{ game.gameName }}
-        </a>
+    <div class="py-10 text-center">
+        <div class="inline-block sm:pt-1">
+            <h2 class="font-bold">
+                made by;
+            </h2>
 
-        <div class="py-10 text-center">
-            <div class="inline-block sm:pt-1">
-                <h2 class="font-bold">
-                    made bye;
-                </h2>
-
-                <p class="text-sm text-gray-600">
-                    {{game.user.username}}
-                </p>
-            </div>
+            <p class="text-sm text-gray-600">
+                {{ game.user.username }}
+            </p>
         </div>
+    </div>
 
-        
-        <a href="{{ game.link }}?userId={{ userId }}&gameId={{ game.id }}&hash={{ hash }}" target="_blank" class="bg-blue-500 font-bold py-2 px-4 rounded transition-all hover:bg-blue-300"
-        target="_blank">
-            <img
-                src="{{ game.imagePath }}"
-                class="rounded-xl w-full shadow-xl"
-                alt="Endy says wait"
-            />
-        </a>        
+    <a href="{{ game.link }}?userId={{ userId }}&gameId={{ game.id }}&hash={{ hash }}" target="_blank" class="bg-blue-500 font-bold py-2 px-4 rounded transition-all hover:bg-blue-300">
+        <img
+            src="{{ game.imagePath }}"
+            class="rounded-xl w-full shadow-xl"
+            alt="Game image"
+        />
+    </a>
 
-        {% if app.user and (game.user.id == app.user.id or app.user.isAdmin) %}
-        <p class="text-xl py-6">
-            What are you here for?
-        </p>
+    {% if app.user and (game.user.id == app.user.id or app.user.isAdmin) %}
+    <div class="py-6">
+        <p class="text-xl">What are you here for?</p>
     
         <a 
             href="/games/edit/{{ game.id }}"
@@ -45,22 +41,47 @@
             class="bg-red-500 font-bold py-2 px-4 ml-6 rounded transition-all hover:bg-red-300">
             Delete Game
         </a> 
+    </div>
     {% endif %}
 
     <div class="mt-8">
-        <h3 class="text-lg font-semibold">Leaderboard (Top Times)-------------------------------------------   score ---------------------------------------------------------------------time</h3>
+        <h3 class="text-lg font-semibold">Leaderboard (Top Times)</h3>
         <div>
             {% for score in leaderboardScores %}
-                <div class="flex justify-between items-center py-2">
-                    <div>{{ score.user.username }}</div>
-                    <div>{{ score.score }}</div>
-                    <div>{{ score.topScore }} minutes</div>
-                </div>
+            <div class="flex justify-between items-center py-2">
+                <div>{{ score.user.username }}</div>
+                <div>{{ score.score }}</div>
+                <div>{{ score.topScore }} minutes</div>
+            </div>
             {% else %}
-                <p>No scores yet.</p>
+            <p>No scores yet.</p>
             {% endfor %}
         </div>
     </div>
+
+    <!-- Pie Chart Visualization -->
+    <div id="piechart" style="width: 900px; height: 500px;"></div>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
     
-    </div>
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Username', 'Total Score'],
+                {% for score in scoresForChart %}
+                ['{{ score.username }}', {{ score.totalScore }}],
+                {% endfor %}
+            ]);
+    
+            var options = {
+                title: 'Game score, Game name:{{ game.gameName }}',
+                is3D: true,
+            };
+    
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            chart.draw(data, options);
+        }
+    </script>
 {% endblock %}
