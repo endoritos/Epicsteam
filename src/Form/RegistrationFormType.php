@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class RegistrationFormType extends AbstractType
 {
@@ -90,7 +92,27 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
-        ;
+            ->add('profilePictures', FileType::class, [
+                'label' => 'Profile Picture (Image file)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5024k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image file',
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'file:cursor-pointer file:py-2 mt-4 file:px-4 file:border file:border-gray-300 file:rounded-lg file:text-sm file:font-semibold file:bg-white file:text-gray-700 hover:file:bg-gray-50 file:transition-colors file:ease-linear file:outline-none',
+                    'placeholder' => 'Upload now or later choise is yours',
+                    'accept' => 'image/jpeg,image/png,image/gif',
+                ],
+            ]);
     }
     public function configureOptions(OptionsResolver $resolver): void
     {

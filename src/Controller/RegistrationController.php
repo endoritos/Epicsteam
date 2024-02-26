@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+
 
 class RegistrationController extends AbstractController
 {
@@ -30,9 +32,24 @@ class RegistrationController extends AbstractController
                 )
             );
 
+            $profilePicture = $form->get('profilePictures')->getData();
+        if ($profilePicture) {
+            $originalFilename = pathinfo($profilePicture->getClientOriginalName(), PATHINFO_FILENAME);
+            $newFilename = $originalFilename.'-'.uniqid().'.'.$profilePicture->guessExtension();
+
+            try {
+                $profilePicture->move(
+                    $this->getParameter('kernel.project_dir') . '/public/uploads',
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                return new Response($e->getMessage());
+            }
+            $user->setProfilePictures('/uploads/'.$newFilename); // Ensure this matches your User entity method
+        }
+
             $entityManager->persist($user);
             $entityManager->flush();
-            // do anything else you need here, like send an email
 
             return $this->redirectToRoute('app_movies');
         }

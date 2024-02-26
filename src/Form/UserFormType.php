@@ -60,7 +60,7 @@ class UserType extends AbstractType
             ],
             'attr' => [
                 'class' => 'file:bg-transparent file:border-b-2 file:border-0 file:w-full file:h-20 file:text-6xl file:outline-none',
-                'placeholder' => 'Upload profile picture...', // This placeholder won't directly apply to file inputs but kept for consistency
+                'placeholder' => 'Upload profile picture...',
             ],
         ]);
     }
