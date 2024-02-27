@@ -47,6 +47,13 @@ class MoviesController extends AbstractController
     }
 
 
+    #[Route(path:'/', name:"welcome")]
+    public function welcome()
+    {
+        return $this->redirectToRoute('app_movies');
+    }
+
+
     #[Route('/games', methods:['GET'], name: 'app_movies')]
     public function index(Request $request, Security $security, GameRepository $gameRepository): Response
     {
@@ -113,7 +120,7 @@ class MoviesController extends AbstractController
             $em->flush();
 
             // Redirect to a route that makes sense after creating a game
-            return $this->redirectToRoute('app_movies'); // Ensure this route exists in your routing configuration
+            return $this->redirectToRoute('app_movies');
         }
 
         // Adjust the template path to reflect game creation context

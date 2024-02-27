@@ -2,7 +2,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\UserType;
+use App\Form\UserFormType;
 use App\Repository\GameRepository;
 use App\Repository\ScoreRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,7 +66,7 @@ public function editProfile(Request $request, UserPasswordHasherInterface $passw
         throw new \LogicException('The user entity must implement PasswordAuthenticatedUserInterface.');
     }
 
-    $form = $this->createForm(UserType::class, $user);
+    $form = $this->createForm(UserFormType::class, $user);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
