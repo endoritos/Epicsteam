@@ -31,11 +31,11 @@ class UserController extends AbstractController
     {
         // Get the currently logged-in user
         $user = $this->getUser();
-
         // If no user is logged in, redirect to the login page
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
+        $games = $gameRepository->findBy(['user' => $user]);
 
         $hasCreatedGame = !empty($gameRepository->findBy(['user' => $user]));
 
@@ -43,11 +43,11 @@ class UserController extends AbstractController
 
 
 
-        // Otherwise, render the profile page with the user's information
         return $this->render('movies/profile.html.twig', [
             'user' => $user,
             'hasCreatedGame' => $hasCreatedGame,
-            'userHasPlayedGame'=> $userHasPlayedGame
+            'userHasPlayedGame'=> $userHasPlayedGame,
+            'games' => $games,
         ]);
     }
 

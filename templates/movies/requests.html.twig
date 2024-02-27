@@ -64,22 +64,22 @@
                         Block User
                     </button>
                 </form>
-<!--  message sending ability hihi -->
-<form method="post" action="{{ path('admin_toggle_message_sending', {'userId': user.id}) }}">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('toggle-message-' ~ user.id) }}">
-    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        {{ user.canSendMessages ? 'Allow Messages' : 'Block Messages' }}
-    </button>
-</form>
+                <!--  message sending ability hihi -->
+                <form method="post" action="{{ path('admin_toggle_message_sending', {'userId': user.id}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('toggle-message-' ~ user.id) }}">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        {{ user.canSendMessages ? 'Allow Messages' : 'Block Messages' }}
+                    </button>
+                </form>
 
-<!--  sending ability -->
-<form method="post" action="{{ path('admin_toggle_friend_request', {'userId': user.id, 'action': 'toggle-friend-request'}) }}">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('toggle-friend-request-' ~ user.id) }}">
-    <input type="hidden" name="action" value="{{ user.canSendFriendRequests ? 'block-friend-requests' : 'allow-friend-requests' }}">
-    <button type="submit" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
-        {{ user.canSendFriendRequests ? 'Block Friend Requests' : 'Allow Friend Requests' }}
-    </button>
-</form>
+                <!--  sending ability -->
+                <form method="post" action="{{ path('admin_toggle_friend_request', {'userId': user.id, 'action': 'toggle-friend-request'}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('toggle-friend-request-' ~ user.id) }}">
+                    <input type="hidden" name="action" value="{{ user.canSendFriendRequests ? 'block-friend-requests' : 'allow-friend-requests' }}">
+                    <button type="submit" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                        {{ user.canSendFriendRequests ? 'Block Friend Requests' : 'Allow Friend Requests' }}
+                    </button>
+                </form>
 
 
             {% endif %}
