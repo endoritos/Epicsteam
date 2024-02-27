@@ -50,7 +50,7 @@
             {% for score in leaderboardScores %}
             <div class="flex justify-between items-center py-2">
                 <div>{{ score.user.username }}</div>
-                <div>{{ score.score }}</div>
+                <div>{{ score.score }} Scores</div>
                 <div>{{ score.topScore }} minutes</div>
             </div>
             {% else %}
@@ -60,7 +60,7 @@
     </div>
 
     <!-- Pie Chart Visualization -->
-    <div id="piechart" style="width: 900px; height: 500px;"></div>
+    <div id="piechart" style="width: 900px; height: 500px;" class="mt-4"></div>
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
