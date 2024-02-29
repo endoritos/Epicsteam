@@ -37,7 +37,7 @@ class ScoreRepository extends ServiceEntityRepository
     return $this->createQueryBuilder('s')
         ->where('s.game = :gameId')
         ->setParameter('gameId', $gameId)
-        ->orderBy('s.topScore', 'DESC')
+        ->orderBy('s.score', 'DESC')
         ->setMaxResults(3)
         ->getQuery()
         ->getResult();
