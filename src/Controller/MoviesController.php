@@ -70,7 +70,6 @@ class MoviesController extends AbstractController
                 $games = $gameRepository->findby(['isPublic' => true]);
             } else {
                 $games = $gameRepository->findPrivateGamesForFriends($user);
-                $games = $gameRepository->findPrivateGamesForUser($user);
             }
         }  else {
             
