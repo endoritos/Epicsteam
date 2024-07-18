@@ -10,3 +10,7 @@ Skills: Symfony Framework · Front-End Development · Web Development · PhpMyAd
 ## 
 U can always try it out for ur self at https://109118.cvoatweb.be/games
 
+## preview 
+![image](
+public/uploads/preview.jpeg
+)
