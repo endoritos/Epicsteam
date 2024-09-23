@@ -67,13 +67,13 @@ class MoviesController extends AbstractController
     
         if ($visibility === 'private') {
             if ($isAdmin) {
-                $games = $gameRepository->findby(['isPublic' => true]);
+                $games = $gameRepository->findBy(['isPublic' => true], ['id' => 'DESC']);
             } else {
                 $games = $gameRepository->findPrivateGamesForFriends($user);
             }
         }  else {
             
-            $games = $this->gameRepository->findBy(['isPublic' => false]);
+            $games = $this->gameRepository->findBy(['isPublic' => false], ['id' => 'DESC']);
         }
     
         return $this->render('movies/index.html.twig', [

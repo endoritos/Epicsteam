@@ -33,7 +33,10 @@ class GameRepository extends ServiceEntityRepository
         ->setParameter('user', $user)
         ->setParameter('isPublic', true)
         ->setParameter('status', 'accepted')
-        ->setParameter('owner', $user);
+        ->setParameter('owner', $user)
+        ->orderBy('g.createdAt', 'DESC'); // to show the most recent games first 
+    
+    
 
     return $qb->getQuery()->getResult();
 }
@@ -44,7 +47,8 @@ public function findPrivateGamesForUser($user)
     $qb = $this->createQueryBuilder('g')
         ->where('g.isPublic = true') 
         ->andWhere('g.user = :user') 
-        ->setParameter('user', $user);
+        ->setParameter('user', $user)
+        ->orderBy('g.createdAt', 'DESC');
     return $qb->getQuery()->getResult();
 }
 
